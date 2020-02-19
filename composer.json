@@ -9,7 +9,8 @@
         }
     ],
     "require": {
-        "cc/attacent": "*"
+        "cc/attacent": "*",
+        "tymon/jwt-auth": "^1.0"
     },
     "autoload": {
         "psr-4": {

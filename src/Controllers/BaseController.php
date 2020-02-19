@@ -2,10 +2,12 @@
 
 namespace Cc\Labama\Controllers;
 
-use Cc\Labama\Exceptions\Err;
+use Cc\Labama\Facades\Auth;
 use Cc\Labama\Models\UserPermission;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,7 +15,7 @@ class BaseController extends Controller
 {
     public function getSysInfo()
     {
-        $uid = auth_guard()->user()->uid;
+        $uid = Auth::user()->uid;
         return [
             'attachUrl' => Storage::disk('attacent')->url('/' . LABAMA_ENTRY . '/'),
             'routeList' => 1 == $uid ? '*' : UserPermission::where('uid', $uid)
@@ -30,24 +32,28 @@ class BaseController extends Controller
     public function changePassword(Request $request)
     {
         $password = head($this->getInput(['password' => 'required|min:6|confirmed']));
-        $user = auth_guard()->user();
-        $user->password = bcrypt($password);
+        $user = Auth::user();
+        $user->password = Hash::make($password);
         $user->save();
-        return succ();
+        $token = Auth::refresh();
+        return $this->responseWithToken($token);
     }
 
     public function login(Request $request)
     {
         $credentials = $this->getInput(['username', 'password']);
-        if (auth_guard()->attempt($credentials, true)) {
-            return succ($this->getSysInfo());
+        $token = Auth::attempt($credentials, true);
+        if ($token) {
+            return $this->responseWithToken($token, $this->getSysInfo());
         }
         return err('username or password is incorrect');
     }
 
     public function logout(Request $request)
     {
-        auth_guard()->logout();
+        if (config('jwt.blacklist_enabled')) {
+            Auth::logout();
+        }
         return succ();
     }
 
@@ -61,8 +67,15 @@ class BaseController extends Controller
         })->toArray();
         $validator = Validator::make(request()->all(), $rule, $message);
         if ($validator->fails()) {
-            throw new Err(implode("\n", $validator->errors()->all()));
+            throw new Exception(implode("\n", $validator->errors()->all()));
         }
         return request()->only(array_keys($rule));
+    }
+
+    private function responseWithToken($token, $data = '')
+    {
+        return response()
+            ->succ($data)
+            ->header('Authorization', 'Bearer ' . $token);
     }
 }

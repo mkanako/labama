@@ -3,16 +3,35 @@
 namespace Cc\Labama\Middleware;
 
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Http\Middleware\BaseMiddleware as JWTMiddleware;
 
-class Authenticate
+class Authenticate extends JWTMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if ($this->shouldPassThrough($request) || auth_guard()->check()) {
+        if ($this->shouldPassThrough($request)) {
             return $next($request);
         }
-        return err('unauthorized', -1);
+        try {
+            $this->checkForToken($request);
+            $auth = $this->auth;
+            $auth->parseToken();
+            $auth->authenticate();
+        } catch (TokenExpiredException $e) {
+            try {
+                $token = $auth->refresh();
+                $response = $next($request);
+                return $this->setAuthenticationHeader($response, $token);
+            } catch (Exception $e) {
+                return err('unauthorized:' . $e->getMessage(), -1);
+            }
+        } catch (Exception $e) {
+            return err('unauthorized:' . $e->getMessage(), -1);
+        }
+        return $next($request);
     }
 
     private function shouldPassThrough($request)

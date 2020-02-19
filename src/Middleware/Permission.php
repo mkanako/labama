@@ -2,6 +2,7 @@
 
 namespace Cc\Labama\Middleware;
 
+use Cc\Labama\Facades\Auth;
 use Cc\Labama\Models\UserPermission;
 use Closure;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ class Permission
         if (true == $request->shouldPass) {
             return $next($request);
         }
-        $uid = auth_guard()->user()->uid;
+        $uid = Auth::user()->uid;
         if (1 == $uid) {
             return $next($request);
         }

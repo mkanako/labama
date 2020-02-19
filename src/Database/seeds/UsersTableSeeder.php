@@ -4,6 +4,7 @@ namespace Cc\Labama\Database\Seeds;
 
 use Cc\Labama\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UsersTableSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class UsersTableSeeder extends Seeder
         if (0 == User::count()) {
             User::create([
                 'username' => 'admin',
-                'password' => bcrypt('admin'),
+                'password' => Hash::make('admin'),
             ]);
         }
     }

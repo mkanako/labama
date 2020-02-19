@@ -3,7 +3,7 @@
 return [
     'auth' => [
         'guard' => [
-            'driver' => 'session',
+            'driver' => 'jwt',
             'provider' => [
                 'driver' => 'eloquent',
                 'model' => Cc\Labama\Models\User::class,

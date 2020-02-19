@@ -3,13 +3,14 @@
 namespace Cc\Labama\Controllers;
 
 use Cc\Attacent\Facades\Attacent;
+use Cc\Labama\Facades\Auth;
 use Illuminate\Http\Request;
 
 class AttachmentController extends BaseController
 {
     public function __construct()
     {
-        Attacent::setUid(auth_guard()->id())
+        Attacent::setUid(Auth::id())
             ->setPageSize(10)
             ->setPrefix(LABAMA_ENTRY);
     }
@@ -28,23 +29,15 @@ class AttachmentController extends BaseController
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             if ($file->isValid()) {
-                try {
-                    return succ(Attacent::upload($file));
-                } catch (\Exception $e) {
-                    return err($e->getMessage());
-                }
+                return succ(Attacent::upload($file));
             }
         }
-        return err();
+        return err('The file does not exist or invalid');
     }
 
     public function destroy($id)
     {
-        try {
-            Attacent::delete($id);
-            return succ();
-        } catch (\Exception $e) {
-            return err($e->getMessage());
-        }
+        Attacent::delete($id);
+        return succ();
     }
 }
