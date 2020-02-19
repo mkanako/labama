@@ -2,7 +2,7 @@
 
 Route::prefix('{{prefix}}')
 ->namespace('Cc\Labama\Controllers')
-->middleware('LabamaEntry:{{prefix}}','Labama')
+->middleware('Labama')
 ->group(function ($router) {
     $router->post('login', 'BaseController@login');
     $router->get('logout', 'BaseController@logout');

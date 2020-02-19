@@ -6,7 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Route;
 
-class AdminServiceProvider extends ServiceProvider
+class LabamaServiceProvider extends ServiceProvider
 {
     public function boot()
     {
@@ -18,11 +18,9 @@ class AdminServiceProvider extends ServiceProvider
             Middleware\Permission::class,
         ]);
 
-        Route::aliasMiddleware('LabamaEntry', Middleware\DefineEntry::class);
-
         $auth = ['guards' => [], 'providers' => []];
 
-        $config = config('labama');
+        $config = config('labama', []);
         if (!empty($config)) {
             foreach ($config as $key => $value) {
                 $auth['guards'][$key] = array_merge(Arr::except($value['auth']['guard'], 'provider'), ['provider' => $key]);
@@ -35,6 +33,12 @@ class AdminServiceProvider extends ServiceProvider
                 $this->loadRoutesFrom(app_path(ucfirst($key) . '/routes.php'));
             }
         }
+        Route::matched(function ($matched) use ($config) {
+            $prefix = $matched->route->action['prefix'];
+            if (!empty($prefix) && array_key_exists($prefix, $config)) {
+                define('LABAMA_ENTRY', $prefix);
+            }
+        });
     }
 
     public function register()

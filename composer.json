@@ -22,7 +22,7 @@
     "extra": {
       "laravel": {
           "providers": [
-            "Cc\\Labama\\AdminServiceProvider"
+            "Cc\\Labama\\LabamaServiceProvider"
           ]
       }
   }
