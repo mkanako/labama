@@ -9,24 +9,24 @@ class Authenticate
 {
     public function handle(Request $request, Closure $next)
     {
-        if ($this->shouldPassThrough($request) || admin_guard()->check()) {
+        if ($this->shouldPassThrough($request) || auth_guard()->check()) {
             return $next($request);
         }
-        return err('Not Logged In', -1);
+        return err('unauthorized', -1);
     }
 
     private function shouldPassThrough($request)
     {
         $excepts = array_merge(
-            config('admin.auth.excepts', []),
+            config('labama.' . LABAMA_ENTRY . '.auth.excepts', []),
             [
                 'login',
                 'logout',
             ],
         );
         return $request->shouldPass = collect($excepts)
-            ->map(function ($item) {
-                return config('admin.route.prefix') . '/' . trim($item, '/');
+            ->map(function ($item) use ($request) {
+                return ($request->route()->getPrefix() ?: LABAMA_ENTRY) . '/' . trim($item, '/');
             })
             ->contains(function ($item) use ($request) {
                 return $request->is($item);

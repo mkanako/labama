@@ -23,9 +23,9 @@ if (!function_exists('err')) {
     }
 }
 
-if (!function_exists('admin_guard')) {
-    function admin_guard()
+if (!function_exists('auth_guard')) {
+    function auth_guard()
     {
-        return Auth::guard(config('admin.auth.guard'));
+        return Auth::guard(LABAMA_ENTRY);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Cc\Labama\Middleware;
 
-use Cc\Labama\Models\AdminUserPermission;
+use Cc\Labama\Models\UserPermission;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -13,7 +13,7 @@ class Permission
         if (true == $request->shouldPass) {
             return $next($request);
         }
-        $uid = admin_guard()->user()->uid;
+        $uid = auth_guard()->user()->uid;
         if (1 == $uid) {
             return $next($request);
         }
@@ -26,18 +26,18 @@ class Permission
             '/'
         );
         if (in_array($path, [
-            'getRoutes',
+            'sysInfo',
             'changePassword',
             'attachment',
         ])) {
             return $next($request);
         }
-        if (AdminUserPermission::where('uid', $uid)
+        if (UserPermission::where('uid', $uid)
             ->where('route_path', $path)
             ->first()
             ) {
             return $next($request);
         }
-        return err('Unauthorized');
+        return err('No permission');
     }
 }

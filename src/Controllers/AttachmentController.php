@@ -5,20 +5,22 @@ namespace Cc\Labama\Controllers;
 use Cc\Attacent\Facades\Attacent;
 use Illuminate\Http\Request;
 
-class AttachmentController extends AdminController
+class AttachmentController extends BaseController
 {
     public function __construct()
     {
-        Attacent::setUid(admin_guard()->id());
+        Attacent::setUid(auth_guard()->id())
+            ->setPageSize(10)
+            ->setPrefix(LABAMA_ENTRY);
     }
 
     public function index(Request $request)
     {
-        return Attacent::getList(
+        return succ(Attacent::getList(
             $request->input('page', 1),
             $request->input('type', 'image'),
             $request->input('filter', []),
-        );
+        ));
     }
 
     public function store(Request $request)

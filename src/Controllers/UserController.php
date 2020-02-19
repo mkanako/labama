@@ -4,7 +4,7 @@ namespace Cc\Labama\Controllers;
 
 use Illuminate\Http\Request;
 
-class AdminUserController extends AdminController
+class UserController extends BaseController
 {
     /**
      * Display a listing of the resource.

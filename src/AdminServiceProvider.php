@@ -10,9 +10,7 @@ class AdminServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        $entrys = config('LabamaEntrys', ['Admin']);
-
-        Route::middlewareGroup('admin', [
+        Route::middlewareGroup('Labama', [
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -20,52 +18,31 @@ class AdminServiceProvider extends ServiceProvider
             Middleware\Permission::class,
         ]);
 
-        Route::prefix(config('admin.route.prefix'))
-            ->name('admin.')
-            ->namespace('Cc\Labama\Controllers')
-            ->middleware(config('admin.route.middleware'))
-            ->group(function ($router) {
-                $router->post('login', 'AdminController@login')->name('login');
-                $router->get('logout', 'AdminController@logout')->name('logout');
-                $router->post('changePassword', 'AdminController@changePassword');
-                $router->get('sysInfo', 'AdminController@sysInfo');
-                $router->apiResource('adminUser', 'AdminUserController');
-                $router->apiResource('attachment', 'AttachmentController')->except([
-                    'show', 'update',
-                ]);
-            });
+        Route::aliasMiddleware('LabamaEntry', Middleware\DefineEntry::class);
 
-        foreach ($entrys as $value) {
-            if (file_exists($routes = app_path($value . '/routes.php'))) {
-                $this->loadRoutesFrom($routes);
+        $auth = ['guards' => [], 'providers' => []];
+
+        $config = config('labama');
+        if (!empty($config)) {
+            foreach ($config as $key => $value) {
+                $auth['guards'][$key] = array_merge(Arr::except($value['auth']['guard'], 'provider'), ['provider' => $key]);
+                $auth['providers'][$key] = $value['auth']['guard']['provider'];
             }
-        }
 
-        Route::fallback(function () {
-            return err('Not Found');
-        })->prefix(config('admin.route.prefix'))->name('admin.fallback');
+            config(Arr::dot($auth, 'auth.'));
 
-        if ($this->app->runningInConsole()) {
-            foreach ($entrys as $value) {
-                $this->publishes([__DIR__ . '/config.php' => config_path(strtolower($value) . '.php')], 'Labama-config');
+            foreach ($config as $key => $value) {
+                $this->loadRoutesFrom(app_path(ucfirst($key) . '/routes.php'));
             }
-            $this->publishes([__DIR__ . '/Database/migrations' => database_path('migrations')], 'Labama-migrations');
         }
     }
 
     public function register()
     {
-        config(
-            Arr::dot(
-                Arr::only(
-                    config('admin.auth', []),
-                    ['guards', 'providers']
-              ),
-                'auth.'
-            )
-        );
-        $this->commands([
-            Console\InstallCommand::class,
-        ]);
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                Console\InstallCommand::class,
+            ]);
+        }
     }
 }

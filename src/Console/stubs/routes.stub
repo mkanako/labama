@@ -1,11 +1,19 @@
 <?php
 
-use Illuminate\Routing\Router;
+Route::prefix('{{prefix}}')
+->namespace('Cc\Labama\Controllers')
+->middleware('LabamaEntry:{{prefix}}','Labama')
+->group(function ($router) {
+    $router->post('login', 'BaseController@login');
+    $router->get('logout', 'BaseController@logout');
+    $router->post('changePassword', 'BaseController@changePassword');
+    $router->get('sysInfo', 'BaseController@sysInfo');
+    $router->apiResource('user', 'UserController');
+    $router->apiResource('attachment', 'AttachmentController')->except([
+        'show', 'update',
+    ]);
+    $router->fallback(function () {
+        return err('Not Found');
+    });
 
-Route::group([
-    'prefix' => config('admin.route.prefix'),
-    'namespace' => '{{namespace}}',
-    'middleware' => config('admin.route.middleware'),
-], function (Router $router) {
-    $router->get('/home', 'HomeController@index');
 });

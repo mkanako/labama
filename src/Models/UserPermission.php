@@ -4,8 +4,8 @@ namespace Cc\Labama\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AdminUserPermission extends Model
+class UserPermission extends Model
 {
-    protected $table = 'admin_users_permissions';
+    protected $table = LABAMA_ENTRY . '_users_permissions';
     public $timestamps = false;
 }

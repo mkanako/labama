@@ -5,10 +5,10 @@ namespace Cc\Labama\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class AdminUser extends Authenticatable
+class User extends Authenticatable
 {
     use  Notifiable;
-    protected $table = 'admin_users';
+    protected $table = LABAMA_ENTRY . '_users';
     protected $primaryKey = 'uid';
 
     protected $fillable = [

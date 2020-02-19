@@ -3,21 +3,20 @@
 namespace Cc\Labama\Controllers;
 
 use Cc\Labama\Exceptions\Err;
-use Cc\Labama\Models\AdminUserPermission;
+use Cc\Labama\Models\UserPermission;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class AdminController extends Controller
+class BaseController extends Controller
 {
     public function getSysInfo()
     {
-        $uid = admin_guard()->user()->uid;
-        if (1 == $uid) {
-            return succ(['routeList' => '*']);
-        }
+        $uid = auth_guard()->user()->uid;
         return [
-            'routeList' => AdminUserPermission::where('uid', $uid)
+            'attachUrl' => Storage::disk('attacent')->url('/' . LABAMA_ENTRY . '/'),
+            'routeList' => 1 == $uid ? '*' : UserPermission::where('uid', $uid)
                 ->pluck('route_path')
                 ->toArray(),
         ];
@@ -30,8 +29,8 @@ class AdminController extends Controller
 
     public function changePassword(Request $request)
     {
-        $password = head($this->ensureData(['password' => 'required|min:6|confirmed']));
-        $user = admin_guard()->user();
+        $password = head($this->getInput(['password' => 'required|min:6|confirmed']));
+        $user = auth_guard()->user();
         $user->password = bcrypt($password);
         $user->save();
         return succ();
@@ -39,20 +38,20 @@ class AdminController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $this->ensureData(['username', 'password']);
-        if (admin_guard()->attempt($credentials, true)) {
+        $credentials = $this->getInput(['username', 'password']);
+        if (auth_guard()->attempt($credentials, true)) {
             return succ($this->getSysInfo());
         }
-        return err('login fail');
+        return err('username or password is incorrect');
     }
 
     public function logout(Request $request)
     {
-        admin_guard()->logout();
+        auth_guard()->logout();
         return succ();
     }
 
-    public function ensureData($rule, $message = [])
+    public function getInput($rule, $message = [])
     {
         $rule = collect($rule)->mapWithKeys(function ($item, $key) {
             if (is_int($key)) {
