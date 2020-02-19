@@ -47,6 +47,7 @@ class InstallCommand extends Command
             $this->call('migrate');
             $this->call('db:seed', ['--class' => \Cc\Labama\Database\Seeds\UsersTableSeeder::class]);
         }
+        $this->modifyExceptions();
 
         $this->call('attacent:install', ['--force' => $this->option('force')]);
 
@@ -84,6 +85,35 @@ class InstallCommand extends Command
             }
         }
         return false;
+    }
+
+    private function modifyExceptions()
+    {
+        $namespace_code = <<<EOT
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+EOT;
+        $render_code = <<<'EOT'
+        if (in_array(current(explode('/', trim($request->getPathInfo(), '/'))), array_keys(config('labama')))) {
+            if ($exception instanceof MethodNotAllowedHttpException ||  $exception instanceof NotFoundHttpException) {
+                return err('Not Found');
+            }
+        }
+EOT;
+        $path = app_path() . '/Exceptions/Handler.php';
+        $handler_file = file_get_contents($path);
+        preg_match_all('/use.+?;/', $handler_file, $matches);
+        if (!empty($matches[0])) {
+            $first = Arr::first($matches[0], function ($value) {
+                return  preg_match('/use\s+?Symfony.+?Exception.+?;/', $value);
+            }, false);
+            if (false === $first) {
+                $last = Arr::last($matches[0]);
+                $handler_file = str_replace($last, $last . "\n" . $namespace_code, $handler_file);
+                $handler_file = preg_replace('/(public\s+?function\s+?render.+?\n?.*?{)/', "$1\n$render_code", $handler_file);
+                file_put_contents($path, $handler_file);
+            }
+        }
     }
 }
 
