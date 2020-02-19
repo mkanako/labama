@@ -8,7 +8,9 @@
             "name": "C.C"
         }
     ],
-    "require": {},
+    "require": {
+        "cc/attacent": "*"
+    },
     "autoload": {
         "psr-4": {
             "Cc\\Labama\\": "src"

@@ -10,17 +10,22 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
-    public function getRoutes(Request $request)
+    public function getSysInfo()
     {
         $uid = admin_guard()->user()->uid;
         if (1 == $uid) {
             return succ(['routeList' => '*']);
         }
-        return succ([
+        return [
             'routeList' => AdminUserPermission::where('uid', $uid)
                 ->pluck('route_path')
                 ->toArray(),
-        ]);
+        ];
+    }
+
+    public function sysInfo(Request $request)
+    {
+        return succ($this->getSysInfo());
     }
 
     public function changePassword(Request $request)
@@ -36,7 +41,7 @@ class AdminController extends Controller
     {
         $credentials = $this->ensureData(['username', 'password']);
         if (admin_guard()->attempt($credentials, true)) {
-            return succ('login!');
+            return succ($this->getSysInfo());
         }
         return err('login fail');
     }

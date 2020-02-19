@@ -28,6 +28,7 @@ class Permission
         if (in_array($path, [
             'getRoutes',
             'changePassword',
+            'attachment',
         ])) {
             return $next($request);
         }

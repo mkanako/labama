@@ -28,8 +28,11 @@ class AdminServiceProvider extends ServiceProvider
                 $router->post('login', 'AdminController@login')->name('login');
                 $router->get('logout', 'AdminController@logout')->name('logout');
                 $router->post('changePassword', 'AdminController@changePassword');
-                $router->get('getRoutes', 'AdminController@getRoutes');
+                $router->get('sysInfo', 'AdminController@sysInfo');
                 $router->apiResource('adminUser', 'AdminUserController');
+                $router->apiResource('attachment', 'AttachmentController')->except([
+                    'show', 'update',
+                ]);
             });
 
         foreach ($entrys as $value) {

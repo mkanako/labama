@@ -15,6 +15,7 @@ class InstallCommand extends Command
         $this->call('vendor:publish', ['--provider' => 'Cc\Labama\AdminServiceProvider', '--force' => $this->option('force')]);
         $this->initDatabase();
         $this->initDirectory();
+        $this->call('attacent:install', ['--force' => $this->option('force')]);
     }
 
     public function initDatabase()
