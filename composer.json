@@ -8,6 +8,9 @@
             "name": "C.C"
         }
     ],
+    "scripts": {
+        "format":"php-cs-fixer fix --config=.php_cs"
+    },
     "require": {
         "cc/attacent": "*",
         "tymon/jwt-auth": "^1.0"

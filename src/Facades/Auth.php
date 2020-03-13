@@ -1,4 +1,5 @@
 <?php
+
 namespace Cc\Labama\Facades;
 
 use Illuminate\Support\Facades\Facade;
