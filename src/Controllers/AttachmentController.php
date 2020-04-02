@@ -8,11 +8,12 @@ use Illuminate\Http\Request;
 
 class AttachmentController extends BaseController
 {
-    public function __construct()
+    public function callAction($method, $parameters)
     {
         Attacent::setUid(Auth::id())
             ->setPageSize(10)
             ->setPrefix(LABAMA_ENTRY);
+        return parent::callAction($method, $parameters);
     }
 
     public function index(Request $request)
