@@ -1,0 +1,27 @@
+{
+    "name": "cc/labama",
+    "description": "labama",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "C.C"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Cc\\Labama\\": "src"
+        },
+        "files": [
+          "src/helpers.php"
+        ]
+    },
+    "extra": {
+      "laravel": {
+          "providers": [
+            "Cc\\Labama\\AdminServiceProvider"
+          ]
+      }
+  }
+}

@@ -1,0 +1,13 @@
+<?php
+
+namespace {{namespace}};
+
+use Cc\Labama\Controllers\AdminController as Controller;
+
+class HomeController extends Controller
+{
+    public function index()
+    {
+        echo 'hello world';
+    }
+}
